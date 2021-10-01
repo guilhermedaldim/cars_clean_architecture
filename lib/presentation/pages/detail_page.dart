@@ -36,7 +36,7 @@ class DetailPage extends GetView<DetailController> {
                     },
                   ),
                   radius: 120.0,
-                  backgroundColor: Colors.white,
+                  backgroundColor: Get.isDarkMode ? Colors.black12 : Colors.white,
                 ),
               ),
             ),

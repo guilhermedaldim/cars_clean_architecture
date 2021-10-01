@@ -2,14 +2,17 @@ import 'package:clean_teste/domain/entities/car_entity.dart';
 import 'package:clean_teste/domain/helpers/loading_status.dart';
 import 'package:clean_teste/domain/usecases/car_usecase.dart';
 import 'package:clean_teste/routes/app_routes.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class HomeController extends GetxController {
   final _loadingStatus = LoadingStatus.completed.obs;
   final _cars = RxList(<CarEntity>[]);
+  final _theme = Get.isDarkMode.obs;
 
   LoadingStatus get loadingStatus => _loadingStatus.value;
   List<CarEntity> get cars => _cars;
+  bool get theme => _theme.value;
 
   @override
   void onInit() {
@@ -19,6 +22,16 @@ class HomeController extends GetxController {
 
   void onActionClick(int id) {
     Get.toNamed(Routes.detail, arguments: id);
+  }
+
+  void onChagedTheme() {
+    if (_theme.value) {
+      _theme.value = false;
+      Get.changeThemeMode(ThemeMode.light);
+    } else {
+      _theme.value = true;
+      Get.changeThemeMode(ThemeMode.dark);
+    }
   }
 
   Future<void> getCars({bool showLoading = true, bool showError = true}) async {

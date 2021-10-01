@@ -13,6 +13,14 @@ class HomePage extends GetView<HomeController> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cars'),
+        actions: [
+          Obx(() {
+            return IconButton(
+              onPressed: controller.onChagedTheme,
+              icon: controller.theme ? const Icon(Icons.light_mode) : const Icon(Icons.dark_mode),
+            );
+          })
+        ],
       ),
       body: Obx(() {
         if (controller.loadingStatus == LoadingStatus.loading) {
