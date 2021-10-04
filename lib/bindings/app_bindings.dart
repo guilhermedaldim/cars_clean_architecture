@@ -6,6 +6,7 @@ import 'package:clean_teste/domain/repositories/car_repository.dart';
 import 'package:clean_teste/domain/usecases/car_usecase.dart';
 import 'package:clean_teste/presentation/controllers/detail_controller.dart';
 import 'package:clean_teste/presentation/controllers/home_controller.dart';
+import 'package:clean_teste/presentation/controllers/theme_controller.dart';
 import 'package:data_connection_checker_tv/data_connection_checker.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -24,6 +25,7 @@ class AppBindings implements Bindings {
 
     Get.lazyPut(() {
       Get.put<GetCars>(GetCars(Get.find<CarRepository>()));
+      Get.put<ThemeController>(ThemeController());
       return HomeController();
     }, fenix: true);
 

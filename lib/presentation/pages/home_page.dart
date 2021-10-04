@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:clean_teste/domain/entities/car_entity.dart';
 import 'package:clean_teste/domain/helpers/loading_status.dart';
 import 'package:clean_teste/presentation/controllers/home_controller.dart';
+import 'package:clean_teste/presentation/controllers/theme_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -14,12 +15,14 @@ class HomePage extends GetView<HomeController> {
       appBar: AppBar(
         title: const Text('Cars'),
         actions: [
-          Obx(() {
-            return IconButton(
-              onPressed: controller.onChagedTheme,
-              icon: controller.theme ? const Icon(Icons.light_mode) : const Icon(Icons.dark_mode),
-            );
-          })
+          GetX<ThemeController>(
+            builder: (themeController) {
+              return IconButton(
+                onPressed: controller.onChagedTheme,
+                icon: themeController.theme ? const Icon(Icons.light_mode) : const Icon(Icons.dark_mode),
+              );
+            },
+          ),
         ],
       ),
       body: Obx(() {
