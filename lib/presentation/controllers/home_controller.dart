@@ -26,10 +26,10 @@ class HomeController extends GetxController {
 
   void onChagedTheme() {
     if (_theme.value) {
-      _theme.value = false;
+      _theme.value = !_theme.value;
       Get.changeThemeMode(ThemeMode.light);
     } else {
-      _theme.value = true;
+      _theme.value = !_theme.value;
       Get.changeThemeMode(ThemeMode.dark);
     }
   }
