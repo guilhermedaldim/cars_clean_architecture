@@ -20,6 +20,7 @@ class DetailPage extends GetView<DetailController> {
             child: CircularProgressIndicator(),
           );
         }
+
         CarEntity car = controller.car;
         return Column(
           mainAxisAlignment: MainAxisAlignment.start,

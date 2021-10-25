@@ -1,5 +1,9 @@
 import 'package:clean_teste/domain/entities/entities.dart';
+import 'package:hive_flutter/adapters.dart';
 
+part 'car_model.g.dart';
+
+@HiveType(typeId: 0)
 class CarModel extends CarEntity {
   const CarModel({
     required int id,

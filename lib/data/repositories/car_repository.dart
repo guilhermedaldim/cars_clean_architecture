@@ -15,40 +15,35 @@ class CarRepositoryImpl implements CarRepository {
 
   @override
   Future<Either<Failure, List<CarEntity>>> getCars() async {
-    if (await network.isConnected) {
-      try {
-        final result = await remoteDataSource.getCars();
-        localDataSource.setCars(result);
-        return Right(result);
-      } catch (e) {
-        return const Left(ServerError('Falha na requisição'));
+    network.isConnected.then((connected) {
+      if (connected) {
+        remoteDataSource.getCars().then((cars) {
+          localDataSource.setCars(cars);
+        });
       }
-    } else {
-      try {
-        final result = localDataSource.getCars();
-        return Right(result);
-      } catch (e) {
-        return const Left(CacheError('Falha ao recuperar Cache'));
-      }
+    });
+
+    try {
+      final result = localDataSource.getCars();
+      return Right(result);
+    } catch (e) {
+      return const Left(CacheError('Falha ao recuperar Cache'));
     }
   }
 
   @override
   Future<Either<Failure, CarEntity>> getCarById(int id) async {
-    if (await network.isConnected) {
-      try {
-        final result = await remoteDataSource.getCarById(id);
-        return Right(result);
-      } catch (e) {
-        return const Left(ServerError('Falha na requisição'));
+    network.isConnected.then((connected) {
+      if (connected) {
+        remoteDataSource.getCarById(id);
       }
-    } else {
-      try {
-        final result = localDataSource.getCar(id);
-        return Right(result!);
-      } catch (e) {
-        return const Left(CacheError('Falha ao recuperar Cache'));
-      }
+    });
+
+    try {
+      final result = localDataSource.getCarById(id);
+      return Right(result);
+    } catch (e) {
+      return const Left(CacheError('Falha ao recuperar Cache'));
     }
   }
 }

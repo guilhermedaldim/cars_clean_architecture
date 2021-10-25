@@ -1,48 +1,56 @@
-import 'dart:convert';
-import 'dart:io';
+import 'package:clean_teste/core/cache/cache_car_model.dart';
 import 'package:clean_teste/core/error/errors.dart';
 import 'package:clean_teste/data/datasources/car_local_datasource.dart';
 import 'package:clean_teste/data/models/car_model.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../mocks/car_model_mock.dart';
 
-class GetStorageMock extends Mock implements GetStorage {}
+class CacheMock extends Mock implements CacheCarModelImpl {}
 
 main() {
   late CarLocalDataSourceImpl datasource;
-  late GetStorageMock getStorage;
+  late CacheMock cache;
 
   setUp(() {
-    getStorage = GetStorageMock();
-    datasource = CarLocalDataSourceImpl(getStorage);
+    cache = CacheMock();
+    datasource = CarLocalDataSourceImpl(cache);
     registerFallbackValue<CarModel>(const CarModel(id: 1));
   });
 
-  final data = json.decode(File('test/mocks/cars_cached_mock.json').readAsStringSync());
-  List<String> list = [];
-  for (var i in data) {
-    list.add(json.encode(i));
-  }
+  group('Initialize cache', () {
+    test('Deve inicializar o Hive', () async {
+      when(() => cache.initialize()).thenAnswer((_) => Future.value());
+
+      await cache.initialize();
+
+      verify(() => cache.initialize());
+    });
+
+    test('Deve abrir a caixa do Hive', () async {
+      when(() => cache.open()).thenAnswer((_) => Future.value());
+
+      await cache.open();
+
+      verify(() => cache.open());
+    });
+  });
 
   group('CarModel', () {
     test('Deve retornar um CarModel do cache', () async {
-      final tCarModel = CarModel.fromJson(json.decode(File('test/mocks/car_cached_mock.json').readAsStringSync()));
+      when(() => cache.read()).thenReturn(carListModel);
 
-      when(() => getStorage.read(any())).thenReturn(list.map((map) => json.decode(map)).toList());
+      final result = datasource.getCarById(1);
 
-      final result = datasource.getCar(1);
-
-      verify(() => getStorage.read(CarLocalDataSource.cacheCars));
-      expect(result, equals(tCarModel));
+      verify(() => cache.read());
+      expect(result, equals(carModel));
     });
 
     test('Deve retornar um CacheError para valores inválidos', () async {
-      when(() => getStorage.read(any())).thenReturn(null);
+      when(() => cache.read()).thenReturn([]);
 
-      final result = datasource.getCar;
+      final result = datasource.getCarById;
 
       expect(() => result(1), throwsA(const CacheError('Falha ao recuperar Cache')));
     });
@@ -50,30 +58,28 @@ main() {
 
   group('List<CarModel>', () {
     test('Deve retornar uma List<CarModel> do cache', () async {
-      List<CarModel> tCarModelList = List<CarModel>.from(list.map((car) => CarModel.fromJson(json.decode(car))));
-
-      when(() => getStorage.read(any())).thenReturn(list.map((map) => json.decode(map)).toList());
+      when(() => cache.read()).thenReturn(carListModel);
 
       final result = datasource.getCars();
 
-      verify(() => getStorage.read(CarLocalDataSource.cacheCars));
-      expect(result, equals(tCarModelList));
+      verify(() => cache.read());
+      expect(result, equals(carListModel));
     });
 
     test('Deve retornar um CacheError para valores inválidos', () async {
-      when(() => getStorage.read(any())).thenReturn(null);
+      when(() => cache.read()).thenReturn([]);
 
       final result = datasource.getCars;
 
       expect(() => result(), throwsA(const CacheError('Falha ao recuperar Cache')));
     });
 
-    test('Deve salvar uma List<CarModel> no cache', () async {
-      when(() => getStorage.write(CarLocalDataSource.cacheCars, any())).thenAnswer((_) async => Future.value());
+    test('Deve salvar um CarModel de retorno da API no cache', () async {
+      when(() => cache.write(any())).thenAnswer((_) async => Future.value());
 
       datasource.setCars(carListModel);
 
-      verify(() => getStorage.write(CarLocalDataSource.cacheCars, carListModel.map((car) => car.toJson()).toList()));
+      verify(() => cache.write(carListModel));
     });
   });
 }

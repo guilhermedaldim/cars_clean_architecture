@@ -1,32 +1,27 @@
+import 'package:clean_teste/core/cache/cache_car_model.dart';
 import 'package:clean_teste/core/error/errors.dart';
 import 'package:clean_teste/data/models/car_model.dart';
-import 'package:get_storage/get_storage.dart';
 
 abstract class CarLocalDataSource {
-  static const cacheCars = 'CACHE_CARS';
+  static const carsBox = 'CARS';
 
-  CarModel? getCar(int id);
+  CarModel getCarById(int id);
   List<CarModel> getCars();
 
   Future<void> setCars(List<CarModel> cars);
 }
 
 class CarLocalDataSourceImpl implements CarLocalDataSource {
-  final GetStorage getStorage;
+  final CacheCarModelImpl cacheImpl;
 
-  CarLocalDataSourceImpl(this.getStorage);
+  CarLocalDataSourceImpl(this.cacheImpl);
 
   @override
-  CarModel? getCar(id) {
-    final cache = getStorage.read(CarLocalDataSource.cacheCars);
+  CarModel getCarById(id) {
+    final cars = cacheImpl.read();
 
-    if (cache != null) {
-      List<CarModel> cars = List<CarModel>.from(cache.map((car) => CarModel.fromJson(car)));
-      for (var car in cars) {
-        if (id == car.id) {
-          return car;
-        }
-      }
+    if (cars.isNotEmpty) {
+      return cars.firstWhere((car) => car.id == id);
     } else {
       throw const CacheError('Falha ao recuperar Cache');
     }
@@ -34,10 +29,10 @@ class CarLocalDataSourceImpl implements CarLocalDataSource {
 
   @override
   List<CarModel> getCars() {
-    final cars = getStorage.read(CarLocalDataSource.cacheCars);
+    final cars = cacheImpl.read();
 
-    if (cars != null) {
-      return List<CarModel>.from(cars.map((car) => CarModel.fromJson(car)));
+    if (cars.isNotEmpty) {
+      return cars;
     } else {
       throw const CacheError('Falha ao recuperar Cache');
     }
@@ -45,6 +40,6 @@ class CarLocalDataSourceImpl implements CarLocalDataSource {
 
   @override
   Future<void> setCars(List<CarModel> cars) {
-    return getStorage.write(CarLocalDataSource.cacheCars, cars.map((car) => car.toJson()).toList());
+    return cacheImpl.write(cars);
   }
 }

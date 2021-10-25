@@ -1,9 +1,13 @@
+import 'package:clean_teste/core/cache/cache_car_model.dart';
+import 'package:clean_teste/data/models/car_model.dart';
 import 'package:clean_teste/domain/entities/car_entity.dart';
 import 'package:clean_teste/domain/helpers/loading_status.dart';
 import 'package:clean_teste/domain/usecases/car_usecase.dart';
 import 'package:clean_teste/presentation/controllers/theme_controller.dart';
 import 'package:clean_teste/routes/app_routes.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class HomeController extends GetxController {
   final _loadingStatus = LoadingStatus.completed.obs;
@@ -14,7 +18,7 @@ class HomeController extends GetxController {
 
   @override
   void onInit() {
-    getCars();
+    getCars(showError: listenableBox().value.values.isNotEmpty);
     super.onInit();
   }
 
@@ -24,6 +28,10 @@ class HomeController extends GetxController {
 
   void onChagedTheme() {
     Get.put(ThemeController()).onChagedTheme();
+  }
+
+  ValueListenable<Box<CarModel>> listenableBox() {
+    return CacheCarModelImpl().listenable();
   }
 
   Future<void> getCars({bool showLoading = true, bool showError = true}) async {
@@ -42,6 +50,7 @@ class HomeController extends GetxController {
         }
       }, (r) {
         _loadingStatus.value = LoadingStatus.completed;
+        r.sort((a, b) => a.id.compareTo(b.id));
         _cars.value = r;
       });
     });
