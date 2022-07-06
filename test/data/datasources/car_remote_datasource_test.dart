@@ -16,7 +16,7 @@ main() {
   setUp(() {
     client = ClientMock();
     datasource = CarRemoteDataSourceImpl(client);
-    registerFallbackValue<Uri>(Uri());
+    registerFallbackValue(Uri());
   });
 
   group('List<CarModel>', () {

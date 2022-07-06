@@ -16,7 +16,7 @@ main() {
   setUp(() {
     cache = CacheMock();
     datasource = CarLocalDataSourceImpl(cache);
-    registerFallbackValue<CarModel>(const CarModel(id: 1));
+    registerFallbackValue(const CarModel(id: 1));
   });
 
   group('Initialize cache', () {
